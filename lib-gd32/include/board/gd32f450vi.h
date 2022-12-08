@@ -164,6 +164,31 @@ static constexpr uint32_t INVERTED = 0;
 }  // namespace hal
 #endif
 
+/**
+ * SPI flash
+ */
+
+#define SPI_FLASH_CS_GPIOx		SPI_NSS_GPIOx
+#define SPI_FLASH_CS_RCU_GPIOx	SPI_NSS_RCU_GPIOx
+#define SPI_FLASH_CS_GPIO_PINx	SPI_NSS_GPIO_PINx
+
+/**
+ * EXT PHY
+ */
+
+#define LINK_CHECK_GPIO_CLK				RCU_GPIOB
+#define LINK_CHECK_GPIO_PORT			GPIOB
+#define LINK_CHECK_GPIO_PIN 			GPIO_PIN_0
+#define LINK_CHECK_EXTI_LINE			EXTI_0
+#define LINK_CHECK_EXTI_IRQn			EXTI0_IRQn
+#define LINK_CHECK_IRQ_HANDLE			EXTI0_IRQHandler
+
+#define LINK_CHECK_EXTI_CLK				RCU_SYSCFG
+#define LINK_CHECK_EXTI_PORT_SOURCE		EXTI_SOURCE_GPIOB
+#define LINK_CHECK_EXTI_PIN_SOURCE		EXTI_SOURCE_PIN0
+#define LINK_CHECK_EXTI_SOURCE_CONFIG	syscfg_exti_line_config
+#define LINK_CHECK_GPIO_CONFIG			gpio_mode_set(LINK_CHECK_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, LINK_CHECK_GPIO_PIN);
+
 #include "mcu/gd32f450_mcu.h"
 #include "gd32_gpio.h"
 

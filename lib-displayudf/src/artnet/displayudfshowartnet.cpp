@@ -2,7 +2,7 @@
  * @file displayudfshowartnet.cpp
  *
  */
-/* Copyright (C) 2019-2022 by Arjan van Vught mailto:info@orangepi-dmx.nl
+/* Copyright (C) 2019-2023 by Arjan van Vught mailto:info@orangepi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,28 +59,28 @@ void DisplayUdf::ShowNodeName(ArtNetNode *pArtNetNode) {
 }
 
 void DisplayUdf::ShowUniverse(ArtNetNode *pArtNetNode) {
-	uint8_t nAddress;
+	uint16_t nUniverse;
 
-	if (pArtNetNode->GetUniverseSwitch(0, nAddress, lightset::PortDir::OUTPUT)) {
+	if (pArtNetNode->GetPortAddress(0, nUniverse, lightset::PortDir::OUTPUT)) {
+		ClearLine(m_aLabels[static_cast<uint32_t>(Labels::UNIVERSE)]);
 		Printf(m_aLabels[static_cast<uint32_t>(Labels::UNIVERSE)],
-				"O: %.2d:%d:%d %s %s",
-				pArtNetNode->GetNetSwitch(0),
-				pArtNetNode->GetSubnetSwitch(0),
-				nAddress,
+				"A: %d %s %s %s",
+				nUniverse,
 				lightset::get_merge_mode(pArtNetNode->GetMergeMode(0), true),
-				pArtNetNode->GetPortProtocol(0) == PortProtocol::ARTNET ? "    " : "sACN");
+				artnet::get_protocol_mode(pArtNetNode->GetPortProtocol(0), true),
+				pArtNetNode->GetRdm(0) ? "RDM" : "");
 	}
 
 	for (uint32_t nPortIndex = 0; nPortIndex < artnet::PORTS; nPortIndex++) {
-		if (pArtNetNode->GetUniverseSwitch(nPortIndex, nAddress, lightset::PortDir::OUTPUT)) {
-			const auto nPage = nPortIndex / artnet::PORTS;
+		if (pArtNetNode->GetPortAddress(nPortIndex, nUniverse, lightset::PortDir::OUTPUT)) {
+			ClearLine(m_aLabels[static_cast<uint32_t>(Labels::UNIVERSE_PORT_A) + nPortIndex]);
 			Printf(m_aLabels[static_cast<uint32_t>(Labels::UNIVERSE_PORT_A) + nPortIndex],
-					"O%d: %.2d:%d:%d %s %s", (nPortIndex + 1),
-					pArtNetNode->GetNetSwitch(nPage),
-					pArtNetNode->GetSubnetSwitch(nPage),
-					nAddress,
+					"%c: %d %s %s %s",
+					'A' + nPortIndex,
+					nUniverse,
 					lightset::get_merge_mode(pArtNetNode->GetMergeMode(nPortIndex), true),
-					pArtNetNode->GetPortProtocol(nPortIndex) == PortProtocol::ARTNET ? "    " : "sACN");
+					artnet::get_protocol_mode(pArtNetNode->GetPortProtocol(nPortIndex), true),
+					pArtNetNode->GetRdm(nPortIndex) ? "RDM" : "");
 		}
 	}
 }

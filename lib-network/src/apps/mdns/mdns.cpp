@@ -2,7 +2,7 @@
  * @file mdns.cpp
  *
  */
-/* Copyright (C) 2019-2022 by Arjan van Vught mailto:info@orangepi-dmx.nl
+/* Copyright (C) 2019-2023 by Arjan van Vught mailto:info@orangepi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@
 #define MDNS_MULTICAST_ADDRESS	"224.0.0.251"
 #define MDNS_TLD                ".local"
 #define DNS_SD_SERVICE          "_services._dns-sd._udp.local"
-#define MDNS_RESPONSE_TTL     	(120)    ///< (in seconds)
+#define MDNS_RESPONSE_TTL     	(4500)    ///< (in seconds)
 #define ANNOUNCE_TIMEOUT 		((MDNS_RESPONSE_TTL / 2) + (MDNS_RESPONSE_TTL / 4))
 
 enum TDNSClasses {
@@ -135,6 +135,11 @@ void MDNS::Start() {
 
 	Network::Get()->SendTo(s_nHandle, s_AnswerLocalIp.aBuffer, static_cast<uint16_t>(s_AnswerLocalIp.nSize), s_nMulticastIp, UDP_PORT);
 	Network::Get()->SetDomainName(&MDNS_TLD[1]);
+}
+
+void MDNS::Stop() {
+	Network::Get()->End(mdns::UDP_PORT);
+	s_nHandle = -1;
 }
 
 void MDNS::SetName(const char *pName) {

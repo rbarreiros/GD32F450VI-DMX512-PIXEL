@@ -2,7 +2,7 @@
  * @file ntpclient.cpp
  *
  */
-/* Copyright (C) 2020-2022 by Arjan van Vught mailto:info@orangepi-dmx.nl
+/* Copyright (C) 2020-2023 by Arjan van Vught mailto:info@orangepi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -117,7 +117,7 @@ bool NtpClient::Receive() {
 	uint32_t nFromIp;
 	uint16_t nFromPort;
 
-	const uint16_t nBytesReceived = Network::Get()->RecvFrom(m_nHandle, &m_Reply, sizeof m_Reply, &nFromIp, &nFromPort);
+	const auto nBytesReceived = Network::Get()->RecvFrom(m_nHandle, &m_Reply, sizeof m_Reply, &nFromIp, &nFromPort);
 
 	if (__builtin_expect((nBytesReceived != sizeof m_Reply), 1)) {
 		return false;
@@ -215,7 +215,7 @@ void NtpClient::Start() {
 
 	ntpclient::display_status(ntpclient::Status::IDLE);
 
-	const uint32_t nNow = Hardware::Get()->Millis();
+	const auto nNow = Hardware::Get()->Millis();
 	uint32_t nRetries;
 
 	for (nRetries = 0; nRetries < RETRIES; nRetries++) {

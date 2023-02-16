@@ -2,7 +2,7 @@
  * @file main.cpp
  *
  */
-/* Copyright (C) 2022 by Arjan van Vught mailto:info@gd32-dmx.org
+/* Copyright (C) 2022-2023 by Arjan van Vught mailto:info@gd32-dmx.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,6 @@
 #include "hardware.h"
 #include "network.h"
 #include "networkconst.h"
-#include "ledblink.h"
 
 #include "mdns.h"
 #include "mdnsservices.h"
@@ -97,16 +96,12 @@ void Hardware::RebootHandler() {
 void main() {
 	Hardware hw;
 	Network nw;
-	LedBlink lb;
 	DisplayUdf display;
 	FirmwareVersion fw(SOFTWARE_VERSION, __DATE__, __TIME__);
 
 	ConfigStore configStore;
 
-	fw.Print("\x1b[32m" "Art-Net 4 Pixel controller {16x 4 Universes} / 2x DMX" "\x1b[37m");
-
-	hw.SetLed(hardware::LedStatus::ON);
-	lb.SetLedBlinkDisplay(new DisplayHandler);
+	fw.Print("Art-Net 4 Pixel controller {16x 4 Universes} / 2x DMX");
 
 	display.TextStatus(NetworkConst::MSG_NETWORK_INIT, Display7SegmentMessage::INFO_NETWORK_INIT, CONSOLE_YELLOW);
 
@@ -126,7 +121,6 @@ void main() {
 
 #if defined (ENABLE_HTTPD)
 	HttpDaemon httpDaemon;
-	httpDaemon.Start();
 #endif
 
 	display.TextStatus(ArtNetMsgConst::PARAMS, Display7SegmentMessage::INFO_NODE_PARMAMS, CONSOLE_YELLOW);
@@ -324,14 +318,6 @@ void main() {
 	while (configStore.Flash())
 		;
 
-#if defined (NODE_RDMNET_LLRP_ONLY)
-	display.TextStatus(RDMNetConst::MSG_START, Display7SegmentMessage::INFO_RDMNET_START, CONSOLE_YELLOW);
-
-	llrpOnlyDevice.Start();
-
-	display.TextStatus(RDMNetConst::MSG_STARTED, Display7SegmentMessage::INFO_RDMNET_STARTED, CONSOLE_GREEN);
-#endif
-
 	display.TextStatus(ArtNetMsgConst::START, Display7SegmentMessage::INFO_NODE_START, CONSOLE_YELLOW);
 
 	node.Start();
@@ -360,6 +346,6 @@ void main() {
 		httpDaemon.Run();
 #endif
 		display.Run();
-		lb.Run();
+		hw.Run();
 	}
 }

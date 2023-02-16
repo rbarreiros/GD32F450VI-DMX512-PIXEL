@@ -1,8 +1,8 @@
 /**
- * @file llrponlylightset.h
+ * @file net_timers.cpp
  *
  */
-/* Copyright (C) 2019-2020 by Arjan van Vught mailto:info@orangepi-dmx.nl
+/* Copyright (C) 2018-2023 by Arjan van Vught mailto:info@orangepi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,48 +23,30 @@
  * THE SOFTWARE.
  */
 
-#ifndef LLRPONLYLIGHTSET_H_
-#define LLRPONLYLIGHTSET_H_
-
 #include <cstdint>
-#include <assert.h>
 
-#include "lightset.h"
+#include "net_private.h"
 
-class LLRPOnlyLightSet: public LightSet {
-	LLRPOnlyLightSet(void);
-	~LLRPOnlyLightSet(void);
+#include "hardware.h"
 
-	void Start(uint8_t nPort) {
-		assert(0);
+#include "../../config/net_config.h"
+
+#ifndef NDEBUG
+ extern void arp_cache_timer(void);
+#endif
+
+static volatile uint32_t s_ticker;
+
+#define INTERVAL_MS (100)	// 100 msec, 1/10 second
+
+void net_timers_run() {
+	const auto nMillis = Hardware::Get()->Millis();
+
+	if (__builtin_expect((nMillis >= s_ticker), 0)) {
+		s_ticker = nMillis + INTERVAL_MS;
+		igmp_timer();
+#ifndef NDEBUG
+		arp_cache_timer();
+#endif
 	}
-	void Stop(uint8_t nPort) {
-		assert(0);
-	}
-
-	void SetData(uint8_t nPort, const uint8_t *pData, uint32_t nLength) {
-		assert(0);
-	}
-
-	void Print(void) {
-
-	}
-
-public: // RDM Optional
-	bool SetDmxStartAddress(uint16_t nDmxStartAddress) {
-		return false;
-	}
-	uint16_t GetDmxStartAddress(void) {
-		return DMX_ADDRESS_INVALID;
-	}
-
-	uint16_t GetDmxFootprint(void) {
-		return 0;
-	}
-
-	bool GetSlotInfo(uint16_t nSlotOffset, struct TLightSetSlotInfo &tSlotInfo) {
-		return false;
-	}
-};
-
-#endif /* LLRPONLYLIGHTSET_H_ */
+}

@@ -66,11 +66,13 @@ ArtNetNode::ArtNetNode() {
 	Network::Get()->MacAddressCopyTo(m_Node.MACAddressLocal);
 
 	m_Node.Status1 = Status1::INDICATOR_NORMAL_MODE | Status1::PAP_FRONT_PANEL;
-	m_Node.Status2 = Status2::PORT_ADDRESS_15BIT | (artnet::VERSION > 3 ? Status2::SACN_ABLE_TO_SWITCH : Status2::SACN_NO_SWITCH) | Status2::RDM_SWITCH;
-#if defined (ARTNET_HAVE_DMXIN)
-	m_Node.Status3 = Status3::NETWORKLOSS_LAST_STATE | Status3::FAILSAFE_CONTROL | Status3::OUTPUT_SWITCH;
-#else
+	m_Node.Status2 = Status2::PORT_ADDRESS_15BIT | (artnet::VERSION > 3 ? Status2::SACN_ABLE_TO_SWITCH : Status2::SACN_NO_SWITCH);
+#if defined (RDM_CONTROLLER) || defined (RDM_RESPONDER)
+	m_Node.Status2 |= Status2::RDM_SWITCH;
+#endif
 	m_Node.Status3 = Status3::NETWORKLOSS_LAST_STATE | Status3::FAILSAFE_CONTROL;
+#if defined (ARTNET_HAVE_DMXIN)
+	m_Node.Status3 |= Status3::OUTPUT_SWITCH;
 #endif
 
 	memset(&m_State, 0, sizeof(struct State));
@@ -80,7 +82,7 @@ ArtNetNode::ArtNetNode() {
 	for (uint32_t nPortIndex = 0; nPortIndex < artnetnode::MAX_PORTS; nPortIndex++) {
 		memset(&m_OutputPort[nPortIndex], 0 , sizeof(struct OutputPort));
 		memset(&m_InputPort[nPortIndex], 0 , sizeof(struct InputPort));
-		m_OutputPort[nPortIndex].GoodOutputB = artnet::GoodOutputB::STYLE_CONSTANT;
+		m_OutputPort[nPortIndex].GoodOutputB = artnet::GoodOutputB::RDM_DISABLED | artnet::GoodOutputB::STYLE_CONSTANT;
 		m_InputPort[nPortIndex].nDestinationIp = m_Node.IPAddressBroadcast;
 	}
 

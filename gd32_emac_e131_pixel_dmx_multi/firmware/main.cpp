@@ -268,7 +268,7 @@ void main() {
 		displayUdfParams.Dump();
 	}
 
-	display.Show(&bridge);
+	display.Show(&bridge, DMXPORT_OFFSET);
 
 	if (nTestPattern != pixelpatterns::Pattern::NONE) {
 		display.ClearLine(6);

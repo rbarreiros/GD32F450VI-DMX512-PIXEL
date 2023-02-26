@@ -52,7 +52,7 @@ do
 				else
 					echo $SUFFIX
 					mkdir /tmp/$f/$i/$SUFFIX/
-					cp gd32f4xx*.bin /tmp/$f/$i/$SUFFIX
+					cp gd32f4xx.bin /tmp/$f/$i/$SUFFIX
 				fi			
 			done
 			

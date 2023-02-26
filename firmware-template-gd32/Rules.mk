@@ -120,7 +120,7 @@ clean: $(LIBDEP)
 lisdep: $(LIBDEP)
 
 $(LIBDEP):
-	$(MAKE) -f Makefile.GD32 $(MAKECMDGOALS) 'FAMILY=${FAMILY}' 'BOARD=${BOARD}' 'MAKE_FLAGS=$(DEFINES)' -C $@ 
+	$(MAKE) -f Makefile.GD32 $(MAKECMDGOALS) 'FAMILY=${FAMILY}' 'BOARD=${BOARD}' 'PHY_TYPE=${ENET_PHY}' 'MAKE_FLAGS=$(DEFINES)' -C $@ 
 
 # Build bin
 

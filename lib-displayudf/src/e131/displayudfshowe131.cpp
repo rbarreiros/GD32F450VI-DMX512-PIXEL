@@ -40,21 +40,18 @@ void DisplayUdf::Show(E131Bridge *pE131Bridge, uint32_t nDmxPortIndexOffset) {
 	DEBUG_PRINTF("m_nDmxPortIndexOffset=%u", m_nPortIndexOffset);
 
 	Show();
-	
-#if defined (OUTPUT_DMX_ARTNET)
-	uint16_t nUniverse;
-	if (pE131Bridge->GetUniverse(0, nUniverse, lightset::PortDir::OUTPUT)) {
-		Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE)], "U: %d", nUniverse);
-	}
-#endif
 
 	Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::AP)], "AP: %d", pE131Bridge->GetActiveOutputPorts() + pE131Bridge->GetActiveInputPorts());
 
-	for (uint32_t nPortIndex = 0; nPortIndex < std::min(4U, e131bridge::MAX_PORTS); nPortIndex++) {
-		uint16_t nUniverse;
+	for (uint32_t nBridgePortIndex = 0; nBridgePortIndex < std::min(4U, e131bridge::MAX_PORTS); nBridgePortIndex++) {
+		const auto nPortIndex = nBridgePortIndex + m_nPortIndexOffset;
+		const auto nLabelIndex = static_cast<uint32_t>(displayudf::Labels::UNIVERSE_PORT_A) + nBridgePortIndex;
 
-		if (pE131Bridge->GetUniverse(nPortIndex + m_nPortIndexOffset, nUniverse, lightset::PortDir::OUTPUT)) {
-			Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE_PORT_A) + nPortIndex], "Port %c: %d %s", ('A' + nPortIndex), nUniverse, lightset::get_merge_mode(pE131Bridge->GetMergeMode(nPortIndex + m_nPortIndexOffset), true));
+		if (nLabelIndex != 0xFF) {
+			uint16_t nUniverse;
+			if (pE131Bridge->GetUniverse(nPortIndex, nUniverse, lightset::PortDir::OUTPUT)) {
+				Printf(m_aLabels[nLabelIndex], "Port %c: %d %s", ('A' + nBridgePortIndex), nUniverse, lightset::get_merge_mode(pE131Bridge->GetMergeMode(nPortIndex), true));
+			}
 		}
 	}
 

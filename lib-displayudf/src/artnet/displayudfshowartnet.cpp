@@ -45,8 +45,9 @@ void DisplayUdf::Show(ArtNetNode *pArtNetNode, uint32_t nDmxPortIndexOffset) {
 
 	ShowNodeName(pArtNetNode);
 	ShowUniverse(pArtNetNode);
+#if defined (ARTNET_HAVE_DMXIN)
 	ShowDestinationIp(pArtNetNode);
-
+#endif
 	Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::AP)], "AP: %d", pArtNetNode->GetActiveOutputPorts() + pArtNetNode->GetActiveInputPorts());
 
 	ShowDmxInfo();
@@ -62,32 +63,27 @@ void DisplayUdf::ShowNodeName(ArtNetNode *pArtNetNode) {
 void DisplayUdf::ShowUniverse(ArtNetNode *pArtNetNode) {
 	uint16_t nUniverse;
 
-	if (pArtNetNode->GetPortAddress(0, nUniverse, lightset::PortDir::OUTPUT)) {
-		ClearLine(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE)]);
-		Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE)],
-				"A: %d %s %s %s",
-				nUniverse,
-				lightset::get_merge_mode(pArtNetNode->GetMergeMode(0), true),
-				artnet::get_protocol_mode(pArtNetNode->GetPortProtocol(0), true),
-				pArtNetNode->GetRdm(0) ? "RDM" : "");
-	}
+	for (uint32_t nArtNetPortIndex = 0; nArtNetPortIndex < artnet::PORTS; nArtNetPortIndex++) {
+		const auto nPortIndex = nArtNetPortIndex + m_nPortIndexOffset;
+		const auto nLabelIndex = static_cast<uint32_t>(displayudf::Labels::UNIVERSE_PORT_A) + nArtNetPortIndex;
 
-	for (uint32_t nPortIndex = 0; nPortIndex < artnet::PORTS; nPortIndex++) {
-		if (pArtNetNode->GetPortAddress(nPortIndex + m_nPortIndexOffset, nUniverse, lightset::PortDir::OUTPUT)) {
-			ClearLine(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE_PORT_A) + nPortIndex]);
-			Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::UNIVERSE_PORT_A) + nPortIndex],
-					"%c: %d %s %s %s",
-					'A' + nPortIndex,
-					nUniverse,
-					lightset::get_merge_mode(pArtNetNode->GetMergeMode(nPortIndex + m_nPortIndexOffset), true),
-					artnet::get_protocol_mode(pArtNetNode->GetPortProtocol(nPortIndex + m_nPortIndexOffset), true),
-					pArtNetNode->GetRdm(nPortIndex + m_nPortIndexOffset) ? "RDM" : "");
+		if (nLabelIndex != 0xFF) {
+			if (pArtNetNode->GetPortAddress(nPortIndex, nUniverse, lightset::PortDir::OUTPUT)) {
+				ClearLine(m_aLabels[nLabelIndex]);
+				Printf(m_aLabels[nLabelIndex],
+						"%c: %d %s %s %s",
+						'A' + nArtNetPortIndex,
+						nUniverse,
+						lightset::get_merge_mode(pArtNetNode->GetMergeMode(nPortIndex), true),
+						artnet::get_protocol_mode(pArtNetNode->GetPortProtocol(nPortIndex), true),
+						pArtNetNode->GetRdm(nPortIndex) ? "RDM" : "");
+			}
 		}
 	}
 }
 
 void DisplayUdf::ShowDestinationIp(ArtNetNode *pArtNetNode) {
-	for (uint32_t i = 0; i < artnet::PORTS; i++) {
-		Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::DESTINATION_IP_PORT_A) + i], "%c: " IPSTR, 'A' + i, IP2STR(pArtNetNode->GetDestinationIp(i)));
+	for (uint32_t nPortIndex = 0; nPortIndex < artnet::PORTS; nPortIndex++) {
+		Printf(m_aLabels[static_cast<uint32_t>(displayudf::Labels::DESTINATION_IP_PORT_A) + nPortIndex], "%c: " IPSTR, 'A' + nPortIndex, IP2STR(pArtNetNode->GetDestinationIp(nPortIndex)));
 	}
 }
